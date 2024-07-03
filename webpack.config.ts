@@ -91,7 +91,7 @@ export default (env: ConfigParams, args: ConfigParams): webpack.Configuration =>
             clean: true,
             filename: isDev ? 'public/js/bundle.js' : 'public/js/[name].[contenthash:8].js',
             path: path.resolve(__dirname, 'dist'),
-            publicPath: isDev ? `//${SERVER_HOST}:${SERVER_PORT}/` : '/'
+            publicPath: isDev ? `//${SERVER_HOST}:${SERVER_PORT}/` : process.env.PUBLIC_PATH
         },
         plugins: [
             new HtmlWebpackPlugin({
