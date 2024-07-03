@@ -84,9 +84,15 @@ function PortfolioCreatorFormComponent() {
         <Grid gridTemplateRows='1fr' h='100%'>
             <form onSubmitCapture={handleSubmit(onSubmit)} ref={formRef}>
                 {isLoading ? (
-                    <Flex alignItems='center' gap={3}>
+                    <Flex
+                        alignItems='center'
+                        gap={3}
+                        height='100%'
+                        justifyContent='center'
+                        width='100%'
+                    >
                         <Spinner size='xl' />
-                        <Text size='xl'>Идет загрузка</Text>
+                        <Text size='xl'>Идет загрузка, это может занять несколько минут</Text>
                     </Flex>
                 ) : (
                     <FormControl

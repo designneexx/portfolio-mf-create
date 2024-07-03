@@ -6,7 +6,6 @@ import { appElement } from './consts/domElements';
 
 if (appElement) {
     const root = createRoot(appElement);
-    console.log(appTheme.config.initialColorMode);
     root.render(
         <>
             <ColorModeScript initialColorMode={appTheme.config.initialColorMode} />

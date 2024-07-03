@@ -1,7 +1,7 @@
 import { NotificationService } from 'src/services/notificationService';
 import { UserStore } from 'src/stores/userStore';
 import { AppRepositoryProvider } from './AppRepository';
-import MainLayout from './MainLayout';
+import { PortfolioCreatorForm } from './PortfolioCreatorForm';
 
 type MainLayoutProps = {
     notificationService: NotificationService;
@@ -11,7 +11,7 @@ type MainLayoutProps = {
 export default function MFProvider({ notificationService, userStore }: MainLayoutProps) {
     return (
         <AppRepositoryProvider notificationService={notificationService} userStore={userStore}>
-            <MainLayout />
+            <PortfolioCreatorForm />
         </AppRepositoryProvider>
     );
 }

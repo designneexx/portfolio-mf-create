@@ -4,6 +4,7 @@ import { Tokens, UserResponse } from './types';
 export class UserStore {
     accessToken: null | string = null;
     refreshToken: null | string = null;
+
     setAccessToken = (value: null | string) => {
         this.accessToken = value;
     };

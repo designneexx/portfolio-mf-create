@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
+import { BrowserRouter } from 'react-router-dom';
 import MFProvider from './components/MFProvider';
 import { appTheme } from './consts/appTheme';
 import { useConst } from './hooks/useConst';
@@ -12,8 +13,10 @@ export default function App() {
     const notificationService = useConst(() => new NotificationService(eventEmitter));
 
     return (
-        <ChakraProvider theme={appTheme}>
-            <MFProvider notificationService={notificationService} userStore={userStore} />
-        </ChakraProvider>
+        <BrowserRouter>
+            <ChakraProvider theme={appTheme}>
+                <MFProvider notificationService={notificationService} userStore={userStore} />
+            </ChakraProvider>
+        </BrowserRouter>
     );
 }
