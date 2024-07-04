@@ -10,6 +10,42 @@ export class PortfolioService {
         private readonly notificationService: NotificationService
     ) {}
 
+    async deleteResume(resumeId: string) {
+        try {
+            await this.portfolioApi.deleteResume(resumeId);
+
+            this.portfolioStore.setPortfolio(null);
+
+            return true;
+        } catch (err) {
+            const error = err as Error;
+
+            this.notificationService.notifyAnError({
+                title: error.message || 'Неизвестная ошибка'
+            });
+
+            return false;
+        }
+    }
+
+    async getResumeByUserId(userId: string) {
+        try {
+            const { data } = await this.portfolioApi.getResumeByUserId(userId);
+
+            this.portfolioStore.setPortfolio(data);
+
+            return true;
+        } catch (err) {
+            const error = err as Error;
+
+            this.notificationService.notifyAnError({
+                title: error.message || 'Неизвестная ошибка'
+            });
+
+            return false;
+        }
+    }
+
     async uploadResume(formData: FormData) {
         this.portfolioStore.setIsLoading(true);
 

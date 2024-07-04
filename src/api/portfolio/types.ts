@@ -75,6 +75,11 @@ export interface SkillList {
 }
 
 export interface PortfolioApi {
+    deleteResume(resumeId: string, config?: AxiosRequestConfig): Promise<AxiosResponse<unknown>>;
+    getResumeByUserId(
+        userId: string,
+        config?: AxiosRequestConfig
+    ): Promise<AxiosResponse<PortfolioStructureResponse>>;
     uploadResume(
         data: FormData,
         config?: AxiosRequestConfig

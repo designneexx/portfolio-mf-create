@@ -1,13 +1,24 @@
-import { Flex, FormControl, Grid, HStack, Input, Spinner, Text } from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    Flex,
+    FormControl,
+    Grid,
+    HStack,
+    Input,
+    Spinner,
+    Text
+} from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { FaFile, FaFilePdf } from 'react-icons/fa6';
-import { TbFileTypeDocx } from 'react-icons/tb';
+import { FaFilePdf } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import { useAppServices } from 'src/hooks/useAppServices';
 import { useAppStores } from 'src/hooks/useAppStores';
 import { useConst } from 'src/hooks/useConst';
+import { FEParameters } from 'src/types/common';
+import { LazyService } from '../LazyService';
 import { Form, FormFields } from './types';
 
 const enum PortfolioCreatorFormFields {
@@ -16,17 +27,22 @@ const enum PortfolioCreatorFormFields {
 
 const REDIRECT_MS = 5000;
 
-function PortfolioCreatorFormComponent() {
+interface PortfolioCreatorFormComponentProps {
+    feParameters: FEParameters;
+}
+
+function PortfolioCreatorFormComponent({ feParameters }: PortfolioCreatorFormComponentProps) {
     const formRef = useRef<HTMLFormElement>(null);
     const navigate = useNavigate();
     const defaultValues = useConst(() => ({
         [FormFields.ResumeFile]: null
     }));
-    const { portfolioStore } = useAppStores();
+    const { portfolioStore, userStore } = useAppStores();
     const { portfolio } = portfolioStore;
+    const { user } = userStore;
     const portfolioId = portfolio?.id;
     const { isCreated, isLoading } = portfolioStore;
-    const { portfolioService } = useAppServices();
+    const { notificationService, portfolioService } = useAppServices();
     const { handleSubmit, register, setValue } = useForm<Form>({
         defaultValues
     });
@@ -66,6 +82,22 @@ function PortfolioCreatorFormComponent() {
         }
     };
 
+    const onClickToResume = () => {
+        navigate(`/resume/${portfolioId}`);
+    };
+
+    const onDeleteResume = () => {
+        if (portfolio) {
+            portfolioService.deleteResume(portfolio.id);
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            portfolioService.getResumeByUserId(user.id);
+        }
+    }, [user, portfolioService]);
+
     useEffect(() => {
         const timeout = window.setTimeout(() => {
             if (isCreated) {
@@ -81,54 +113,89 @@ function PortfolioCreatorFormComponent() {
     }, [isCreated, portfolioId, navigate]);
 
     return (
-        <Grid gridTemplateRows='1fr' h='100%'>
-            <form onSubmitCapture={handleSubmit(onSubmit)} ref={formRef}>
-                {isLoading ? (
-                    <Flex
-                        alignItems='center'
-                        gap={3}
-                        height='100%'
-                        justifyContent='center'
-                        width='100%'
-                    >
-                        <Spinner size='xl' />
-                        <Text size='xl'>Идет загрузка, это может занять несколько минут</Text>
-                    </Flex>
-                ) : (
-                    <FormControl
-                        alignContent='center'
-                        alignItems='center'
-                        as='label'
-                        cursor='pointer'
-                        display='flex'
-                        flexWrap='wrap'
-                        gap={8}
-                        h='100%'
-                        htmlFor={PortfolioCreatorFormFields.ResumeFile}
-                        isRequired
-                        justifyContent='center'
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={onDropResumeFile}
-                    >
-                        <Input
-                            {...resumeFieldProps}
-                            hidden
-                            id={PortfolioCreatorFormFields.ResumeFile}
-                            multiple={false}
-                            onChange={handleChange}
-                            type='file'
+        <Grid gridTemplateRows='1fr' h='100%' overflow='hidden'>
+            {portfolio ? (
+                <Flex height='100%' overflow='hidden' padding={{ base: 3, md: 10 }}>
+                    <Box position='relative'>
+                        <LazyService
+                            data={{
+                                notificationService,
+                                resumeId: portfolio.id,
+                                userStore
+                            }}
+                            microservice={{
+                                module: feParameters.module,
+                                scope: feParameters.scope,
+                                url: feParameters.url
+                            }}
                         />
-                        <HStack as='span'>
-                            <FaFilePdf size={50} />
-                            <TbFileTypeDocx size={50} />
-                            <FaFile size={50} />
-                        </HStack>
-                        <Text fontSize='2xl'>
-                            Загрузите или перетащите ваше резюме в формате pdf, docx, cv
-                        </Text>
-                    </FormControl>
-                )}
-            </form>
+                        <Flex
+                            alignItems='center'
+                            backgroundColor='rgba(0,0,0,.5)'
+                            height='100%'
+                            justifyContent='center'
+                            left={0}
+                            position='absolute'
+                            top={0}
+                            width='100%'
+                            zIndex={1}
+                        >
+                            <Flex gap={4}>
+                                <Button onClick={onClickToResume}>Перейти</Button>
+                                <Button colorScheme='red' onClick={onDeleteResume}>
+                                    Удалить
+                                </Button>
+                            </Flex>
+                        </Flex>
+                    </Box>
+                </Flex>
+            ) : (
+                <form onSubmitCapture={handleSubmit(onSubmit)} ref={formRef}>
+                    {isLoading ? (
+                        <Flex
+                            alignItems='center'
+                            gap={3}
+                            height='100%'
+                            justifyContent='center'
+                            width='100%'
+                        >
+                            <Spinner size='xl' />
+                            <Text size='xl'>Идет загрузка, это может занять несколько минут</Text>
+                        </Flex>
+                    ) : (
+                        <FormControl
+                            alignContent='center'
+                            alignItems='center'
+                            as='label'
+                            cursor='pointer'
+                            display='flex'
+                            flexWrap='wrap'
+                            gap={8}
+                            h='100%'
+                            htmlFor={PortfolioCreatorFormFields.ResumeFile}
+                            isRequired
+                            justifyContent='center'
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={onDropResumeFile}
+                        >
+                            <Input
+                                {...resumeFieldProps}
+                                hidden
+                                id={PortfolioCreatorFormFields.ResumeFile}
+                                multiple={false}
+                                onChange={handleChange}
+                                type='file'
+                            />
+                            <HStack as='span'>
+                                <FaFilePdf size={50} />
+                            </HStack>
+                            <Text fontSize='2xl'>
+                                Загрузите или перетащите ваше резюме в формате pdf
+                            </Text>
+                        </FormControl>
+                    )}
+                </form>
+            )}
         </Grid>
     );
 }

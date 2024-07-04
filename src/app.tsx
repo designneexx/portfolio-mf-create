@@ -5,7 +5,14 @@ import { appTheme } from './consts/appTheme';
 import { useConst } from './hooks/useConst';
 import { NotificationService } from './services/notificationService';
 import { UserStore } from './stores/userStore';
+import { FEParameters } from './types/common';
 import { EventEmitter } from './utils/EventEmitter';
+
+const feParameters: FEParameters = {
+    module: '',
+    scope: '',
+    url: ''
+};
 
 export default function App() {
     const eventEmitter = useConst(() => new EventEmitter());
@@ -15,7 +22,11 @@ export default function App() {
     return (
         <BrowserRouter>
             <ChakraProvider theme={appTheme}>
-                <MFProvider notificationService={notificationService} userStore={userStore} />
+                <MFProvider
+                    feParameters={feParameters}
+                    notificationService={notificationService}
+                    userStore={userStore}
+                />
             </ChakraProvider>
         </BrowserRouter>
     );
