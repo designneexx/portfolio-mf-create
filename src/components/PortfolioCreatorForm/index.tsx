@@ -95,8 +95,10 @@ function PortfolioCreatorFormComponent({ feParameters }: PortfolioCreatorFormCom
     useEffect(() => {
         if (user) {
             portfolioService.getResumeByUserId(user.id);
+        } else {
+            navigate(`/login`);
         }
-    }, [user, portfolioService]);
+    }, [user, navigate, portfolioService]);
 
     useEffect(() => {
         const timeout = window.setTimeout(() => {
