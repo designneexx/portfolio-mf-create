@@ -2,13 +2,12 @@ import path from 'path';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import TerserWebpackPlugin from 'terser-webpack-plugin';
-import webpack from 'webpack';
+import webpack, { DefinePlugin } from 'webpack';
 import packageJson from './package.json';
 
 const deps = packageJson.dependencies;
 
 import 'webpack-dev-server';
-import DotenvWebpackPlugin from 'dotenv-webpack';
 
 type ConfigParams = Record<string, string>;
 
@@ -101,9 +100,10 @@ export default (env: ConfigParams, args: ConfigParams): webpack.Configuration =>
             new ESLintPlugin({
                 extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx']
             }),
-            new DotenvWebpackPlugin({
-                path: './.env',
-                safe: true
+            new DefinePlugin({
+                'process.env': JSON.stringify({
+                    BASE_API_URL: process.env.BASE_API_URL
+                })
             }),
             new ModuleFederationPlugin({
                 exposes: {
