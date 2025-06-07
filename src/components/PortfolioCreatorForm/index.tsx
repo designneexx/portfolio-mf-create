@@ -92,6 +92,10 @@ function PortfolioCreatorFormComponent({ feParameters }: PortfolioCreatorFormCom
         }
     };
 
+    const onAbort = () => {
+        portfolioService.uploadStorageAbortController.abort();
+    };
+
     useEffect(() => {
         if (user) {
             portfolioService.getResumeByUserId(user.id);
@@ -162,7 +166,12 @@ function PortfolioCreatorFormComponent({ feParameters }: PortfolioCreatorFormCom
                             width='100%'
                         >
                             <Spinner size='xl' />
-                            <Text size='xl'>Идет загрузка, это может занять несколько минут</Text>
+                            <Flex flexDirection='column' gap={3}>
+                                <Text size='xl'>
+                                    Идет загрузка, это может занять несколько минут
+                                </Text>
+                                <Button onClick={onAbort}>Отменить</Button>
+                            </Flex>
                         </Flex>
                     ) : (
                         <FormControl

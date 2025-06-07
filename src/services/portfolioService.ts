@@ -9,6 +9,7 @@ import { NotificationService } from './notificationService';
 
 export class PortfolioService {
     private uploadStorageCancelToken = axios.default.CancelToken.source();
+    public uploadStorageAbortController = new AbortController();
 
     constructor(
         private readonly portfolioStore: PortfolioStore,
@@ -52,7 +53,7 @@ export class PortfolioService {
         }
     }
 
-    async uploadResume(formData: FormData) {
+    async uploadResume(formData: FormData, config?: axios.AxiosRequestConfig) {
         this.portfolioStore.setIsLoading(true);
 
         this.uploadStorageCancelToken.cancel();
@@ -74,13 +75,23 @@ export class PortfolioService {
                 });
             },
             retries: AXIOS_CLIENT_RETRIES,
-            retryCondition: () => true,
+            retryCondition: (error) => {
+                const isCanceled = axios.isCancel(error);
+
+                if (isCanceled) {
+                    this.uploadStorageAbortController = new AbortController();
+                }
+
+                return !isCanceled;
+            },
             retryDelay: exponentialDelay
         });
 
         try {
             const { data } = await this.portfolioApi.uploadResume(formData, {
-                cancelToken: this.uploadStorageCancelToken.token
+                cancelToken: this.uploadStorageCancelToken.token,
+                signal: this.uploadStorageAbortController.signal,
+                ...config
             });
 
             runInAction(() => {
