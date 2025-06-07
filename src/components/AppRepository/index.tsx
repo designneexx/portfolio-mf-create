@@ -17,6 +17,8 @@ const createAxiosInstance = (config?: CreateAxiosDefaults) =>
         ...config
     });
 
+export const axiosClient = createAxiosInstance();
+
 interface AppRepositoryProviderProps {
     notificationService: NotificationService;
     userStore: UserStore;
@@ -27,14 +29,7 @@ function AppRepositoryProviderComponent({
     notificationService,
     userStore
 }: PropsWithChildren<AppRepositoryProviderProps>) {
-    const instance = useConst(() =>
-        createAxiosInstance({
-            headers: {
-                Authorization: `Bearer ${userStore.accessToken}`
-            }
-        })
-    );
-    const portfolioApi = useConst(() => createPortfolioApi(instance));
+    const portfolioApi = useConst(() => createPortfolioApi(axiosClient));
     const portfolioStore = useConst(() => new PortfolioStore());
     const portfolioService = useConst(
         () => new PortfolioService(portfolioStore, portfolioApi, notificationService)
@@ -55,12 +50,12 @@ function AppRepositoryProviderComponent({
     );
 
     useEffect(() => {
-        if (instance.defaults.headers.common.Authorization || !userStore.accessToken) return;
+        if (axiosClient.defaults.headers.common.Authorization || !userStore.accessToken) return;
 
-        instance.defaults.headers.common = {
+        axiosClient.defaults.headers.common = {
             Authorization: `Bearer ${userStore.accessToken}`
         };
-    }, [userStore.accessToken, instance]);
+    }, [userStore.accessToken, axiosClient]);
 
     return (
         <AppRepositoryContext.Provider value={appRepository}>
