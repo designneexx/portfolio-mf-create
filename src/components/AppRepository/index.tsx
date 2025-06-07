@@ -55,7 +55,7 @@ function AppRepositoryProviderComponent({
         axiosClient.defaults.headers.common = {
             Authorization: `Bearer ${userStore.accessToken}`
         };
-    }, [userStore.accessToken, axiosClient]);
+    }, [userStore.accessToken]);
 
     return (
         <AppRepositoryContext.Provider value={appRepository}>

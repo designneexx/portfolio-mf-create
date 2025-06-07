@@ -1,5 +1,5 @@
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
+import * as axios from 'axios';
+import axiosRetry, { exponentialDelay } from 'axios-retry';
 import { runInAction } from 'mobx';
 import { PortfolioApi } from 'src/api/portfolio/types';
 import { axiosClient } from 'src/components/AppRepository';
@@ -8,7 +8,7 @@ import { PortfolioStore } from 'src/stores/portfolioStore';
 import { NotificationService } from './notificationService';
 
 export class PortfolioService {
-    private uploadStorageCancelToken = axios.CancelToken.source();
+    private uploadStorageCancelToken = axios.default.CancelToken.source();
 
     constructor(
         private readonly portfolioStore: PortfolioStore,
@@ -57,7 +57,7 @@ export class PortfolioService {
 
         this.uploadStorageCancelToken.cancel();
 
-        this.uploadStorageCancelToken = axios.CancelToken.source();
+        this.uploadStorageCancelToken = axios.default.CancelToken.source();
 
         axiosRetry(axiosClient, {
             onRetry: (currentRetry, error) => {
@@ -74,7 +74,8 @@ export class PortfolioService {
                 });
             },
             retries: AXIOS_CLIENT_RETRIES,
-            retryDelay: axiosRetry.exponentialDelay
+            retryCondition: () => true,
+            retryDelay: exponentialDelay
         });
 
         try {
