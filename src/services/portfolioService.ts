@@ -77,8 +77,6 @@ export class PortfolioService {
             retryDelay: axiosRetry.exponentialDelay
         });
 
-        alert(123);
-
         try {
             const { data } = await this.portfolioApi.uploadResume(formData, {
                 cancelToken: this.uploadStorageCancelToken.token
